@@ -1,5 +1,9 @@
 # Express
 
+[TOC]
+
+
+
 ## Getting started
 
 ### Installing
@@ -80,9 +84,10 @@
 
    - 위의 명령어를 통해 실제로 서버가 동작하기 시작하며 브라우저의 http://localhost:3000/ 에서 응답을 확인할 수 있다. 또한 내 활동에 따라 페이지에 실시간으로 로그가 남겨진다.
 - 노드와 웹브라우저가 연결된 반응형 자바스크립 플레이그라운드인 [RunKit](https://runkit.com/home)를 통해서 이렇게 로컬에서 실시간으로 확인하며 서버를 개발할 수 있다.
-   
+  
+
 ![image-20200820130835681](C:\Users\lucid\ming\express\images\image-20200820130835681.png)
-   
+
    
 
 - `listen`과 `Tcp`
@@ -371,7 +376,7 @@ http://localhost:3000/static/images/kitten.jpg
 
 - Middleware 함수
 
-  route의 핸들러 함수가 미들웨어 함수였는데, 미들웨어는 앱의 요청-응답 사이클에서 요청 객체 `req`와 응답 객체 `res`, `next` 함수에 접근하는 함수들을 말한다. `next` 함수는 콜백 인자이며 요청과 응답사이클이 현재의 미들웨어에서 끝나지 않을 때 `next()` 함수를 호출해 다음 미들웨어 함수에게 컨트롤을 전달해야 요청을 제대로 처리할 수 있다.  
+  route의 핸들러 함수가 미들웨어 함수였는데, 미들웨어는 앱의 요청-응답 사이클에서 요청 객체 `req`와 응답 객체 `res`, `next` 함수(요청-응답 사이클에서 다음 미들웨어 함수)에 접근하는 함수들을 말한다. `next` 함수는 콜백 인자이며 요청과 응답사이클이 현재의 미들웨어에서 끝나지 않을 때 `next()` 함수를 호출해 다음 미들웨어 함수에게 컨트롤을 전달해야 요청을 제대로 처리할 수 있다.  
 
   ```js
   app.get('/', function(req, res, next) {
@@ -498,11 +503,118 @@ http://localhost:3000/static/images/kitten.jpg
 
   만약 미들웨어를 설정가능하게 하고 싶으면, 옵션 객체나 다른 매개변수를 입력받아 그에 따라 미들웨어가 실행하는 함수를 `export` 해주면 된다.
 
+### Using middle ware
+
+Express는 각각 최소한의 기능성을 가진 라우팅과 미들웨어로 이루어진 웹프레임워크라고 할 수 있다. 다시말해, Express는 일련의 미들웨어 함수들의 호출이다.
+
+- 미들웨어의 종류
+
+  Express 앱은 다음과 같은 미들웨어 종류들을 사용할 수 있다.
+
+  - 앱 수준의 미들웨어
+  - 라우터 수준의 미들웨어
+  - 에러 처리 미들웨어
+  - 빌트인 미들웨어 
+  - third party 미들웨어
+
+  마운트 할 경로로 앱 수준의 미들웨어나 라우터 수준의 미들웨어를 불러올 수 있다. 일련의 미들웨어 함수들을 함께 불러올 수 있는데, 이를 통해 마운트할 위치에 미들웨어 시스템의 하위 스택이 생성된다.
+
+- 앱 수준의 미들웨어
+
+  `app.use()`와 `app.METHOD()`를 통해 앱수준의 미들웨어를 앱 객체의 인스턴스에 바인딩(특정 객체이 실행되게끔 고정시키는 역할)할 수 있다. (`METHOD`는 미들웨어 함수가 처리할 수 있는 HTTP 요청 메서드의 소문자. i.e. get, post)
+
+  ```js
+  const express = require('express')
+  const app = express()
+  // 마운팅할 path 가 없는 미들웨어 함수. 앱이 요청을 받을 때마다 실행된다.
+  app.use(function (req, res, next) {
+      console.log('Time:', Date.now())
+      next()
+  })
+  // /user/:id 경로에 대한 요청 때마다 실행되는 미들웨어 함수
+  app.use('/user/:id', function (req, res, next) {
+      console.log('Request Type:', req.method)
+      next()
+  })
+  // /user/:id 경로에 대한 get 요청을 처리하는 라우터와 미들웨어 시스템
+  app.get('/user/:id', function (req, res, next) {
+      res.send('USER')
+  })
+  // 마운트할 경로에 대한 연속적인 미들웨어를 불러오는 예시. /user/:id 경로에 대한 모든 HTTP 요청에 대해 요청을 프린트하는 미들웨어 하위 스택이다.
+  app.use('/user/:id', function (req, res, next) {
+      console.log('Request URL:', req.originalUrl)
+      next()
+  }, function (req, res, next) {
+      console.log('Request Type:', req.method)
+      next()
+  })
+  // 라우터 미들웨어 스택의 나머지 미들웨어 함수들을 스킵하기 위해서 next('route')를 호출하면 다음 라우터로 control을 넘길 수 있다. next('route')는 오직 app.MEHTOD()나 router.METHOD()함수들을 사용한 미들웨어 함수들에서만 동작한다. 
+  app.get('/user/:id', function (req, res, next) {
+      // 만약 user ID 가 0 이라면 스킵하고 다음 라우트로 넘김
+      if (req.params.id === '0') next('route')
+      // 그렇지 않으면 스택의 다음 미들웨어 함수에 넘김
+      else next()
+  }, function (req, res, next) {
+      // reqular 응답을 보냄
+      res.send('reqular')
+  })
+  
+  // /user/:id 경로에 대한 라우트와 라우트내의 핸들러 함수. special 응답을 보낸다.
+  app.get('/user/:id', function (req, res, next) {
+      res.send('special')
+  })
+  
+  // 미들웨어는 재사용성을 위해 배열 내에서 선언할 수 있다. 다음은 /user/:id 경로에 대한 GET 요청을 처리하는 미들웨어 하위 스택의 배열이다.
+  function logOriginalUrl (req, res, next) {
+      console.log('Request URL:', req.originalUrl)
+      next()
+  }
+  
+  function logMethod (req, res, next) {
+      console.log('Request Type:', req.method)
+      next()
+  }
+  
+  const logStuff = [logOriginalUrl, logMethod]
+  app.get('/user/:id', logStuff, function(req, res, next) {
+      res.send('User Info')
+  })
+  
+  ```
+
+  위의 코드는 한번에 전부 동작하지 않는다. send() 명령어가 실행되고 나면 응답이 끝나버리기 때문이다. 모든 미들웨어를 실행시키고 싶다면 중간에 send() 를 console.log()로 바꾸는 편이 좋다. 마찬가지로 next() 함수가 있어야 다음 미들웨어가 실행된다. 
+
+  app.METHOD 내에서만 next('route') 가 실행된다는 것 주의
+
+  - 용어 정리
+
+    - route (라우트 또는 라우터)
+
+      `app.METHOD()` 처럼 path와 HTTP 메서드에 대한 요청을 받을 때 실행되는 콜백함수(핸들러 함수, 라우팅 메서드)
+
+    - 미들웨어 함수
+
+      요청과 응답과 next함수에 접근하는 모든 함수. 라우트 내에도 미들웨어 함수가 있다.
+
+    - 미들웨어 스택
+
+      미들웨어들의 실행목록. 한 함수 안에 연속적인 미들웨어 함수들이 실행될 때 미들웨어 하위 스택이라 하거나 특정 라우터 안에서 미들웨어 함수들이 사용될 때 라우터 미들웨어 스택이라는 용어를 사용했다.
+
+      
+
+- 라우터 수준의 미들웨어
+
+- 에러 처리 미들웨어
+
+- 빌트인 미들웨어
+
+- third-party 미들웨어
+
 ### Routing
 
 - Routing
 
-  HTTP 메서드에 따른 Express `app` 객체의 메서드를 사용해 `routing`을 정의하면 된다. 예를 들어서 POST 요청에는 `app.post()`, GET요청에는 `app.get()`을 사용해 요청을 처리하면 된다. `app.all()`을 사용하면 모든 HTTP 메서드를 처리할 수 있고, `app.use()` 는 콜백함수로 특정한 미들웨어를 사용할 수 있다.
+  HTTP 메서드에 따른 Express `app` 객체의 메서드를 사용해 `routing`을 정의하면 된다. 예를 들어서 POST 요청에는 `app.post()`, GET요청에는 `app.get()`을 사용해 요청을 처리하면 된다. `app.all()`을 사용하면 모든 HTTP 메서드를 처리할 수 있고, `app.use()` 는 콜백함수로서 미들웨어들을 사용할 수 있다(라우터는아니다).
 
   이러한 라우팅 메서드들은 앱이 특정한 endpoint(라우트)와 HTTP메서드에 대한 요청을 받을 때 실행되는 콜백함수(핸들러 함수)이다. 즉, 앱은 특정한 라우트와 메서드에 매치될 요청들을 "`listen`" 하며, 요청이 매치되면 특정한 콜백 함수를 실행하는 것이다.
 
