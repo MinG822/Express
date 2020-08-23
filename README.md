@@ -183,8 +183,19 @@
        └── layout.pug
    ```
 
-   생성된 앱의 구조는 위와 같다. 공식문서에서는 express에서 생성해주는 앱의 구조는 다양한 구조 중 하나의 방법이기 때문에 자신에게 맞는 방법으로 앱을 자유롭게 구성할 것을 권한다.
-
+   - `express-generator`로 생성된 앱의 구조는 위와 같다. 공식문서에서는 express에서 생성해주는 앱의 구조는 다양한 구조 중 하나의 방법이기 때문에 자신에게 맞는 방법으로 앱을 자유롭게 구성할 것을 권한다.
+- `app.js`는 Express 앱의 시작점이 되는 파일이다.
+   - `public/`은 정적파일들을 모아둔 폴더이다.
+   - `views/`는 앱의 데이터 조작 결과를 유저에게  보여주고 유저의 입력을 받는 템플릿들의 폴더이다.
+   - `routes/`는 앱의 라우팅을 담당한다.
+   - `package.json`는 앱이 의존하는 패키지들을 기록한다.
+   - `package-lock.jason`은 `package.json`에 명시된 패키지들의 버전정보를 기록한다.
+   - 데이터베이스와 데이터 조작에 관한 폴더가 없는 것이 특이하다. 뒤에 나오지만 Express app은 작은 미들웨어들과 라우트들의 집합이라는 설명이 있는데 이에 충실한 앱의 구조인 듯 하다.
+   
+   
+   
+   공식문서에서는 라우팅과 public 폴더에 대한 설명으로 끝이 난다. 라우팅에서는 라우트를 설정하고 그 결과가 화면에서 어떻게 보이는 지 확인하는데, 그 과정에서 view 파일들을 개인이 충분히 이해할 수 있을 것이라 생각해서 굳이 views를 다루지 않은 듯 하다. 공식문서대로 라우팅과 정적파일들을 확인하고 앱을 mvc 구조로 변경해보겠다.
+   
    
 
 ### Basic routing
@@ -368,9 +379,62 @@ http://localhost:3000/static/images/kitten.jpg
 
 ![image-20200820160400224](C:\Users\lucid\ming\express\images\image-20200820160400224.png)
 
+### MVC 구조로 앱 변경
 
+`express application generator ` 의 6.앱구조에서 자신에게 맞는 방법으로 앱을 구성하라는 말이 있었다. 그래서 [express 앱의 best-practice](https://medium.com/swlh/best-practices-for-structuring-express-apps-1b3f0b7c9be5)를 찾아보았다.
+
+- mvc 패턴
+
+  `mvc`는 `Model-View-Controller`의 약자이다. 
+
+- mvc 패턴의 앱구조
+
+  ```
+  .
+  ├── app.js
+  ├── bin
+  │   └── www
+  ├── package.json
+  ├── public
+  │   ├── images
+  │   ├── javascripts
+  │   └── stylesheets
+  │       └── style.css
+  ├── controllers
+  │   ├── index.js
+  │   ├── posts.js
+  │   └── users.js
+  ├── models
+  │   ├── index.js
+  │   ├── post.js
+  │   └── user.js
+  └── views
+      ├── error.pug
+      ├── index.pug
+      └── layout.pug
+  ```
+
+  - 참고한 글에서는 `tests`, `middlewares`, `helpers` 와 같은 다른 폴더들이 있었지만 간단한 crud 연습용 앱이기 때문에 생략했다. 또 node express 를 서버용 프레임워크로 사용해보려하기 때문에 `views` 역시 그대로 두었다.
+  - `controllers/`는 앱의 라우트와 로직을 담당한다. 스켈레톤에서 `routes` 의 역할과 비슷하다.
+  - `models/`는 데이터를 나타내고 비즈니스로직과 디비를 실행한다.
+
+  
+
+  이제 공식문서의 가이드를 따라 Express의 핵심인 라우트와 미들웨어에 대해 자세히 알아보고 모델 파일들을 다뤄보겠다.
+
+  
 
 ## Guide
+
+### Module 추가
+
+```bash
+npm install body-parser --save
+npm install --save-dev nodemon
+```
+
+- `body-parser` 는 JSON, Raw, Text, URL 을 처리하는 미들웨어이 모듈이다
+- `nodemon` 은 앱이 변경되었을 때 자동적으로 서버를 재시작해주는 모듈이다.
 
 ### Writing Middleware
 
@@ -731,10 +795,138 @@ Express는 각각 최소한의 기능성을 가진 라우팅과 미들웨어로 
 
   
 
+### Database integration with MySQL
 
+- MySQL 설치
 
-사실 node express 를 서버용 프레임워크로 사용해보려하기 때문에 템플릿 렌더링이나 static files 부분과 관계된 내용은 깊게 찾아보진 않을 것 같다.
+  환경에 맞는 MySQL을 설치해준다.
 
-express 앱 구조를 다른 사람들은 어떻게 구성하고 있나 찾아보았다.
+  windows 사용자는 [여기](https://dev.mysql.com/downloads/installer/)
 
-mvc 패턴 https://medium.com/swlh/best-practices-for-structuring-express-apps-1b3f0b7c9be5
+  Excel 등 필요 없는 것들은 제외하고 설치를 진행해준다.
+
+  - Type and Netowrking 설정
+
+    다른 DB 는 설치한 적이 없어 기본인 3306번 포트로 설정해두었다.
+
+    <img src="C:\Users\lucid\ming\express\images\image-20200823151220748.png" alt="image-20200823151220748" style="zoom:67%;" />
+
+  - Accounts and Roles 설정
+
+    루트 아이디와 유저를 설정해준다.
+
+    <img src="C:\Users\lucid\AppData\Roaming\Typora\typora-user-images\image-20200823151513111.png" alt="image-20200823151513111" style="zoom: 67%;" />
+
+- DB 구성
+
+  - MySQL Command Line Client 실행 및 로그인
+
+    위에서 mysql-server를 설치할 때 client도 설치된다.
+
+    mysql db local server에 접속해 쿼리를 날려야하기 때문에 Client Command Line 을 실행하는 것이다.
+
+  - 데이터베이스 확인 및 데이터베이스 mydb 생성
+
+    ```mysql
+    show databases;
+    create database mydb;
+    show databases;
+    ```
+
+  - mydb 접속 및 테이블 생성
+
+    간단하게 user_table과 post_table을 만든다.
+
+    ```mysql
+    create table user_table(
+        no int not null primary key,
+    	email char(30) not null,
+        password char(50) not null
+    );
+    create table post_table(
+    	no int not null primary key,
+        title char(70) not null,
+        content text,
+        created_at datetime,
+        user_no int not null
+    );
+    alter table post_table add foreign key(user) references user_table(no);
+    desc post_table;
+    desc user_table;
+    ```
+
+    ![image-20200823161038034](C:\Users\lucid\ming\express\images\image-20200823161038034.png)
+
+- 테이블에 데이터 입력하기
+
+  ```mysql
+  insert into user_table values ('a@b.com', '1234', 1);
+  insert into user_table values ('b@c.com', '1234', 2);
+  insert into post_table values (1,'test', 'it is a test post', null, 1);
+  insert into post_table values (2,'test2', 'it is the second test post', null, 1);
+  insert into post_table values (3,'test3', 'it is the third test post', null, 2);
+  ```
+
+- 테이블 확인하기
+
+  ```mysql
+  select * from user_table;
+  select * from post_table;
+  select user_table.*, post_table.*
+  	from user_table, post_table
+  	where user_table.no = post_table.user_no;
+  ```
+
+  ![image-20200823162302229](C:\Users\lucid\ming\express\images\image-20200823162302229.png)
+
+- Express app에 mysql 모듈 설치
+
+  ```bash
+  npm install mysql
+  ```
+
+  공식 문서에서는 이후 단계들을 자세히 다루고 있지 않기 때문에 [mysql 모듈의 README](https://github.com/mysqljs/mysql)를 참고해 작성했다.
+
+- connections 연결
+
+  ```js
+  const mysql      = require('mysql');
+  const connection = mysql.createConnection({
+    host     : 'localhost',
+    user     : 'myuser',
+    password : 1234
+  });
+  
+  connection.connect(function(err) {
+    if (err) {
+      console.error('error connecting: ' + err.stack);
+      return;
+    }
+  
+    console.log('connected as id ' + connection.threadId);
+  });
+  ```
+
+  
+
+- connections 종료
+
+- pooling connections
+
+- pool events
+
+- closing all the connections in a pool
+
+- server와의 연결 끊기
+
+- queries 실행하기
+
+- queries 병렬 실행하기
+
+- streaming query rows
+
+- multiple statement queries
+
+- joins with overlapping column names
+
+- transactions
