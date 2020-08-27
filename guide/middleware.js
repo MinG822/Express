@@ -1,13 +1,25 @@
 const express = require('express')
 const app = express()
 
+// const myLogger = function (req, res, next) {
+//     console.log('Logged')
+//     next('1')
+// }
+
+// const testNext = function (req, res, next) {
+//     console.log('It should not be seen')
+// }
+
+// app.use(myLogger)
+// app.use(testNext)
+
 const myLogger = function (req, res, next) {
-    console.log('Logged')
-    next('1')
+    res.send('hey it is logger!')
+    next()
 }
 
 const testNext = function (req, res, next) {
-    console.log('It should not be seen')
+    console.log('It should be seen')
 }
 
 app.use(myLogger)

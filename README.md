@@ -159,7 +159,7 @@
 
    브라우저에 http://localhost:3000/를 입력하면 express 앱이 실행된 것을 확인할 수 있다.
 
-   ![image-20200820133637883](C:\Users\lucid\ming\express\images\image-20200820133637883.png)
+   ![image-20200820133637883](\images\image-20200820133637883.png)
 
 6. 앱구조
 
@@ -264,7 +264,7 @@
 
   예시와 다르게 `express`의 `Router `인스턴스로 라우팅을 정의한다. `/users` 로 GET 요청이 들어올 때 'respond with a resource'란 메시지로 응답하고 있다.
 
-  ![image-20200820140944944](C:\Users\lucid\ming\express\images\image-20200820140944944.png)
+  ![image-20200820140944944](\images\image-20200820140944944.png)
 
   `/users`로 요청이 들어올 때 `routes/users.js`가 라우터로 역할한다는 것을 알려주는 코드는 `app.js`에서 쉽게 찾을 수 있다.
 
@@ -282,14 +282,16 @@
   });
   ```
 
-  예시와 `routes/users.js` 에서 사용하는 메서드인 `send` 와 달리 `routes/index.js`에서는 `render` 메서드를 사용한다.
+  - `app.use([path,] callback [, callback])` 는 path(기본값은 '/') 에서 동작할 미들웨어나 함수들을 명시해 둔것이다. 요청 path와 일치할 때 callback 함수가 실행된다. (middle ware에 관한 설명은 뒤에서)
 
+  예시와 `routes/users.js` 에서 사용하는 메서드인 `send` 와 달리 `routes/index.js`에서는 `render` 메서드를 사용한다.
+  
   ```js
   //routes/index.js
   /* GET home page. */
   router.get('/', function(req, res, next) {
     res.render('index', { title: 'Express' });
-  });
+});
   ```
 
   - [send](https://expressjs.com/en/5x/api.html#res.send)
@@ -302,14 +304,14 @@
 
     반면 루트 path 에서는 html 문서같은 페이지가 렌더링 된다.
 
-    ![image-20200820142506124](C:\Users\lucid\ming\express\images\image-20200820142506124.png)
-
+    ![image-20200820142506124](\images\image-20200820142506124.png)
+  
     ```js
-    res.render(view [, locals][, callback])
+  res.render(view [, locals][, callback])
     ```
-
+  
     - render 함수의 첫번째 인자 view는 렌더링할 뷰 파일의 파일 경로이다. 절대경로일 수도 있고 views 세팅에 따라 상대적일 수도 있다. 파일 경로에 파일의 확장자가 포함되어있지 않다면 view engine 설정에 따라 파일 확장자를 결정하고 확장자가 포함되어있다면 해당하는 템플릿 엔진에 따라 모듈을 로드해 페이지를 보여줄 것이다.
-    - 두번째 인자는 해당 view 파일에서 사용할 로컬 변수를 설정해 준다. `{변수이름: 변수값}` 의 형태이다.
+  - 두번째 인자는 해당 view 파일에서 사용할 로컬 변수를 설정해 준다. `{변수이름: 변수값}` 의 형태이다.
     - 세번째는 콜백함수로 공식문서에서는 에러처리용으로 사용했다.
 
     
@@ -319,16 +321,16 @@
     
 
     상대경로로 view 파일 경로를 설정한 것은 `app.js` 에서 확인할 수 있다.
-
+  
     ```js
     app.set('views', path.join(__dirname, 'views')); // 현재위치/views/ 로 view 파일경로 설정
-    app.set('view engine', 'pug'); // 파일확장자는 pug, 뷰 엔진은 pug
+  app.set('view engine', 'pug'); // 파일확장자는 pug, 뷰 엔진은 pug
     ```
 
     
 
     마지막으로 렌더링 된 `pug` 파일을 살펴보았다. `pug`는 장고 템플릿 언어와 비슷한데 훨씬 간단해 보였다.
-
+  
     ```jade
     // views/index.pug
     extends layout // layout.pug에서 확장
@@ -365,7 +367,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 위 코드를 통해 `public` 폴더 아래의 모든 정적 파일들을 앱이 서빙할 수 있게 된다. 즉 path를 통해 웹브라우저상에서 파일에 접근할 수 있게 된다. express는 정적 폴더에 상대적으로 찾아보기 때문에 정적 폴더를 path에 포함하지 않아도 된다. 다음은 `http://localhost:3000/images/kitty.jpg로 정적 파일을 요청한 결과이다.
 
-![image-20200820155610637](C:\Users\lucid\ming\express\images\image-20200820155610637.png)
+![image-20200820155610637](images\image-20200820155610637.png)
 
  만약 정적파일들의 path에 접두사 prefix를 붙이고 싶다면 다음과 같이 작성하면 된다.
 
@@ -377,7 +379,7 @@ app.use('/static', express.static(path.join(__dirname, 'public')));
 http://localhost:3000/static/images/kitten.jpg
 ```
 
-![image-20200820160400224](C:\Users\lucid\ming\express\images\image-20200820160400224.png)
+![image-20200820160400224](images\image-20200820160400224.png)
 
 ### MVC 구조로 앱 변경
 
@@ -426,6 +428,8 @@ http://localhost:3000/static/images/kitten.jpg
 
 ## Guide
 
+이 부분은 공식문서의 가이드 중 `Routing`, `Writing Middleware`, `Using Middleware`, `Database Integration` 을 다루고 있으며 필요한 부분은 따로 더 추가했다. 라우팅, 미들웨어, DB 통합에 대해 알아보고 난 후에 간단한 Restful API를 만들어 보겠다.
+
 ### Module 추가
 
 ```bash
@@ -433,8 +437,264 @@ npm install body-parser --save
 npm install --save-dev nodemon
 ```
 
-- `body-parser` 는 JSON, Raw, Text, URL 을 처리하는 미들웨어이 모듈이다
+- [`body-parser`]() 
+
+  - 핸들러 전에 요청의 body 를 파싱해주며 파싱된 body는 `req.body` 로 접근할 수 있게하는 모듈.
+
+    -> Express 4.xx 부터는 빌트인 미들웨어로 필요없게 되었다.
+
 - `nodemon` 은 앱이 변경되었을 때 자동적으로 서버를 재시작해주는 모듈이다.
+
+### Routing
+
+- Routing
+
+  HTTP 메서드에 따른 Express `app` 객체의 메서드를 사용해 `routing`을 정의하면 된다. 예를 들어서 POST 요청에는 `app.post()`, GET요청에는 `app.get()`을 사용해 요청을 처리하면 된다. `app.all()`을 사용하면 모든 HTTP 메서드를 처리할 수 있고, `app.use()` 는 콜백함수로서 미들웨어들을 사용할 수 있다(Routing
+
+- Route method
+
+  HTTP 메서드에 따른 Express `app` 객체의 메서드를 사용해 `routing`을 정의하면 된다. 예를 들어서 POST 요청에는 `app.post()`, GET요청에는 `app.get()`을 사용해 요청을 처리하면 된다. `app.all()`을 사용하면 모든 HTTP 메서드를 처리할 수 있고, `app.use()` 는 콜백함수로서 미들웨어들을 사용할 수 있다(**라우터는아니다**).
+
+  이러한 라우팅 메서드들은 앱이 특정한 endpoint(라우트)와 HTTP메서드에 대한 요청을 받을 때 실행되는 콜백함수(핸들러 함수)이다. 즉, 앱은 특정한 라우트와 메서드에 매치될 요청들을 "`listen`" 하며, 요청이 매치되면 특정한 콜백 함수를 실행하는 것이다.
+
+  사실, 라우팅 메서드들은 하나 이상의 콜백함수를 인자로 가질 수 있다. 다수의 콜백함수로 인해, `next`를 콜백함수의 인자로서 제공하는 것이 중요하고, 그 콜백  함수의 body 내에서 `next()`를 호출해 다음 콜백함수에게 control을 전달하는 것 역시 중요하다.
+
+  다음은 `app.all()` 예시이다.
+
+  ```js
+  app.all('/secret', function (req, res, next) {
+      console.log('Accessing the secret section ...')
+      next() // pass control to the next handler
+  })
+  ```
+
+- Route paths
+
+  `Route paths` 는 요청이 이루어질 수 있는 endpoints를 정의한다. 문자열이거나 문자열 패턴, 또는 정규식이 `Route paths` 가 될 수 있다.
+
+  ?, +, *, () 와 같은 문자들은 정규 표현식의 일부이다.  하이픈 - 이나 온점 . 은 문자열 기반의 paths 로 해석된다. 만약 달러 기호 $ 는 ([]) 로 감싸일 때 문자열 path 로 사용할 수 있다.
+
+  다음은 문자열로 이루어진 `route paths`의 예시이다. 
+
+  ```js
+  // /about 에 대한 요청
+  app.get('/about', function (req, res) {
+    res.send('about')
+  })
+  // /random.text 에 대한 요청
+  app.get('/random.text', function (req, res) {
+    res.send('random.text')
+  })
+  // /acd 또는 /abcd 에 대한 요청, ?가 붙은 문자가 포함되거나 포함되지 않는 경우
+  app.get('/ab?cd', function (req, res) {
+    res.send('ab?cd')
+  })
+  // /abcd, /abbcd, /abbbcd 등에 대한 요청, +가 붙은 문자가 n개 만큼 포함되는 경우
+  app.get('/ab+cd', function (req, res) {
+    res.send('ab+cd')
+  })
+  // /abcd, /abxcd, /abRANDOMcd, /ab123cd 등에 대한 요청, ab와 cd 사이에 어떤 문자열이든 올 수 있다.
+  app.get('/ab*cd', function (req, res) {
+    res.send('ab*cd')
+  })
+  ```
+
+- Route parameters
+
+  라우트 **매개변수**는 URL의 일부분으로 해당하는 위치에 입력될 값들을 나타내기위해 사용된다. 매개변수의 값들은 `req.params` 객체 내부에서 할당하는데, `{매개변수 이름: 매개변수 값}` 의 형태이다.
+
+  매개변수의 이름은 문자열이어야하며 -와 .이 포함될 수 있다.
+
+  ```js
+  // /users/34/books/8989에 대한 요청
+  // req.params: { "userId": "34", "bookId": "8989" }
+  app.get('/users/:userId/books/:bookId', function (req, res) {
+    res.send(req.params)
+  })
+  ```
+
+  post 요청시 request의 body를 파싱하기 위해선 body parser가 필요하며 다음과 같이 사용할 수 있다.
+
+  ```js
+  // create application/json parser
+  app.use(bodyParser.json())
+   
+  // create application/x-www-form-urlencoded parser
+  app.use(bodyParser.urlencoded({ extended: false }))
+   
+  // POST /login gets urlencoded bodies
+  app.post('/login', function (req, res) {
+    res.send('welcome, ' + req.body.username)
+  })
+   
+  // POST /api/users gets JSON bodies
+  app.post('/api/users', function (req, res) {
+    // create user in req.body
+  })
+  ```
+
+  - Express 4.xx 버전부터는 필요없게 되었다. Express 자체 미들웨어를 사용하면 된다
+
+    ```js
+    app.use(express.json())
+    app.use(express.urlencoded({ extended: false }))
+    ```
+
+- Route handlers
+
+  요청을 처리하기 위해 여러개의 콜백함수들을 사용할 수 있다고 위에서 언급했다. 이때 콜백함수들은 미들웨어 같이 동작한다. (미들웨어에 대해서는 다음 파트에서 설명하고 있다.)  
+
+  미들웨어와 다른 점은 딱 한가지인데, 라우트의 콜백들은 `next('route')`를 호출해 라우트 내에 남아있는 콜백함수들을 스킵할 수 있다는 점이다. 따라서 조건문을 사용해 현재 라우트를 더이상 진행할 이유가 없을 때 다음 라우트로 control을 넘길 수 있다.
+
+  라우트 핸들러들은 함수의 형태일 수도, 함수들의 배열일 수도, 함수와 배열의 조합일 수도 있다. 다음은 예시이다. 
+
+  ```js
+  // 다수의 콜백함수를 사용하는 경우
+  app.get('/example/b', function (req, res, next) {
+    // 콜백 1
+    console.log('the response will be sent by the next function ...')
+    next()
+  }, function (req, res) {
+    // 콜백 2
+    res.send('Hello from B!')
+  })
+  
+  // 콜백함수들의 배열을 사용하는 경우
+  const cb0 = function (req, res, next) {
+    console.log('CB0')
+    next()
+  }
+  
+  const cb1 = function (req, res, next) {
+    console.log('CB1')
+    next()
+  }
+  
+  const cb2 = function (req, res) {
+    res.send('Hello from C!')
+  }
+  
+  app.get('/example/c', [cb0, cb1, cb2])
+  
+  // 콜백함수들의 배열과 콜백함수를 함께 사용하는 경우
+  const cb0 = function (req, res, next) {
+    console.log('CB0')
+    next()
+  }
+  
+  const cb1 = function (req, res, next) {
+    console.log('CB1')
+    next()
+  }
+  
+  app.get('/example/d', [cb0, cb1], function (req, res, next) {
+    console.log('the response will be sent by the next function ...')
+    next()
+  }, function (req, res) {
+    res.send('Hello from D!')
+  })
+  ```
+
+- Response methods
+
+  응답객체 (`res`) 의 메서드들은 클라이언트에게 응답을 보낼수도, 요청-응답 사이클을 종료시킬 수 도 있다. 만약 라우트 핸들러로부터 어떤 메서드도 호출되지 않았다면 클라이언트의 요청은 여전히 처리 중 상태(`hanging`)로 남아있을 것이다.
+
+  | Method             | Description                                                  |
+  | ------------------ | ------------------------------------------------------------ |
+  | `res,download()`   | 다운로드될 파일을 띄운다.                                    |
+  | `res.end()`        | 응답을 종료한다.                                             |
+  | `res.json()`       | JSON 을 응답으로 보낸다.                                     |
+  | `res.redirect()`   | 요청을 redirect 한다.                                        |
+  | `res.render()`     | 뷰 템플릿을 보여준다.                                        |
+  | `res.send()`       | 다양한 타입의 응답을 보낸다.                                 |
+  | `res.sendStatus()` | 응답 코드(200, 400 등)와 이에 대한 설명을 body에 string으로 담아 보낸다. |
+
+  다음은 예시코드이다.
+
+  ```js
+  res.download('/file/path.extention')
+  // browser dialog에서 보여줄 파일의 이름 추가
+  res.download('/file/path.extention', 'filename')
+  // 다운로드에서 에러발생시 콜백함수 호출
+  res.download('/file/path.extention', 'filename', function(err) {
+    if (err) {
+      // Handle error, but keep in mind the response may be partially-sent
+      // so check res.headersSent
+    } else {
+      // decrement a download credit, etc.
+    }
+  })
+  
+  res.json({ user: 'tobi'})
+  res.status(500).json({ error: 'message'})
+  
+  // 같은 호스트의 다른 path로 control을 보낼 수 있으며 이때는 상대 경로를 사용할 수 있다.
+  res.redirect('/foo/bar')
+  res.redirect('../foo/bar')
+  // 다른 사이트로 넘길 때에는 완전한 주소를 작성해야한다. 
+  res.redirect(301, 'http://example.com')
+  // 요청 이전으로 돌아갈 수도 있는데 만약 이전 값을 모른다면 '/'로 넘겨진다.
+  res.redirect('back')
+  ```
+
+- app.route()
+
+  `app.route()` 를 통해 연쇄적인 라우트 핸들러들을 만들 수 있다. path가 하나일 때 라우트 모듈(연쇄적인 라우트 핸들러)을 사용함으로써 코드 중복과 입력 실수를 줄일 수 있다. 다음은 예시 코드이다.
+
+  ```js
+  app.route('/book')
+  	.get(function (req, res) {
+      	res.send('Get a random book')
+  	})
+  	.post(function (req, res) {
+      	res.send('Add a book')
+  	})
+  	.put(function (req, res) {
+      	res.send('Update the book')
+  	})
+  ```
+
+  
+
+- express.Router()
+
+  `express.Router` 클래스를 사용해 라우트 핸들러들을 만들 수 있다. `Router` 인스턴스는 그 자체로 완전한 미들웨어와 라우팅 시스템이기 때문에 종종 "mini-app"이라 불린다.
+
+  다음 예시는 라우터를 생성해 그 안에 미들웨어를 불러오고, 라우트들을 정의한다. 그 라우터를 모듈로 내보내 앱에서 사용할 수 있게 한다.
+
+  ```JS
+  // birds.js
+  const express = require('express')
+  const router = express.Router()
+  
+  // 이 라우터에 대한 마들웨어
+  router.use(function timeLog (req, res, next) {
+    console.log('Time: ', Date.now())
+    next()
+  })
+  
+  // 홈페이지 라우트 정의
+  router.get('/', function (req, res) {
+    res.send('Birds home page')
+  })
+  
+  // 어바웃 라우트 정의
+  router.get('/about', function (req, res) {
+    res.send('About birds')
+  })
+  // 모듈 내보내기
+  module.exports = router
+  ```
+
+  ```js
+  // app.js
+  // 라우트 모듈 불러오기
+  const birds = require('./birds')
+  // ...
+  app.use('/birds', brirds)
+  ```
+
+  
 
 ### Writing Middleware
 
@@ -486,7 +746,7 @@ npm install --save-dev nodemon
 
   미들웨어 함수를 불러오기 위해선 `call.use()` 를 호출해 미들웨어 함수를 명시해줘야한다. 위의 코드는 루트 path로 라우팅하기 전에 `myLogger` 미들웨어 함수를 불러오는 코드다. 앱이 요청을 받을 때마다 "Logged" 메시지가 터미널에 프린트 될 것이다.
 
-  ![image-20200820213043570](C:\Users\lucid\AppData\Roaming\Typora\typora-user-images\image-20200820213043570.png)
+  
 
   `next()`를 불러야만 앱의 다음 미들웨어 함수가 호출된다. 위의 코드에서는 `next()`를 주석 처리했기 때문에 다음 미들웨어 함수인 `textNext`가 호출되지 않았다. 
 
@@ -494,11 +754,11 @@ npm install --save-dev nodemon
 
   이때 만약 `next()` 에 인자로 어떤 것이든 넘기게 되면 ('route', 'router' 제외) Express는 현재 요청을 에러로 처리하고 이후 모든 미들웨어를 스킵한다. 다음은 위의 코드에서 `myLogger`의 `next()`에 '1'을 인자로 넘긴 결과이다. 탭이 에러로 바뀌었으며 '1'만 화면에 띄우고 있다.
 
-  ![image-20200820224309624](C:\Users\lucid\ming\express\images\image-20200820224309624.png)
+  ![image-20200820224309624](images\image-20200820224309624.png)
 
   만약 에러헨들러가 있다면 에러 코드를 띄운다.
 
-  ![image-20200820224428094](C:\Users\lucid\ming\express\images\image-20200820224428094.png)
+  ![image-20200820224428094](images\image-20200820224428094.png)
 
   
 
@@ -553,13 +813,13 @@ npm install --save-dev nodemon
 
     `Session` 쿠키는 현재 세션이 끝날 때 함께 지워지며, `Permanent` 쿠키는 `Expire` 속성에 명시된 날짜에 지워진다.
 
-    ![image-20200820215151575](C:\Users\lucid\ming\express\images\image-20200820215151575.png)
+    ![image-20200820215151575](images\image-20200820215151575.png)
 
     개발자도구의 Network의 Headers를 살펴보면 위와 같이 요청 헤더에 포함되어있는 쿠키를 확인할 수 있다. 이 쿠키는 인코딩 되어있는데 `cookie-parser` 패키지는 인코딩된 쿠키를 파싱해 주는 역할을 하는 것이다.
 
     파싱된 결과 생성되는 `req.cookie`는 브라우저에 저장된 Cookies와 같이 키-값 형태이다.
 
-    ![image-20200820220515928](C:\Users\lucid\ming\express\images\image-20200820220515928.png)
+    ![image-20200820220515928](images\image-20200820220515928.png)
 
     
 
@@ -571,21 +831,27 @@ npm install --save-dev nodemon
 
 Express는 각각 최소한의 기능성을 가진 라우팅과 미들웨어로 이루어진 웹프레임워크라고 할 수 있다. 다시말해, Express는 일련의 미들웨어 함수들의 호출이다.
 
-- 미들웨어의 종류
+- 미들웨어가 수행할 수 있는 작업들
+- 어떤 코드든 실행
+  - 요청과 응답 객체들 조작
+- 요청-응답 사이클 종료
+  - 스택의 다음 미들웨어 함수 호출
 
-  Express 앱은 다음과 같은 미들웨어 종류들을 사용할 수 있다.
+만약 미들웨어 함수가 요청-응답 사이클을 끝내지 않으면 반드시 `next()` 메서드를 호출해 다음 미들웨어 함수에게 control을 넘겨야한다. 그렇지 않으면 그 요청은 끝나지 않고 남아있을 것이다.
 
-  - 앱 수준의 미들웨어
+- 미들웨어 종류
+- 앱 수준의 미들웨어
   - 라우터 수준의 미들웨어
-  - 에러 처리 미들웨어
+- 에러 처리 미들웨어
   - 빌트인 미들웨어 
   - third party 미들웨어
+  
 
-  마운트 할 경로로 앱 수준의 미들웨어나 라우터 수준의 미들웨어를 불러올 수 있다. 일련의 미들웨어 함수들을 함께 불러올 수 있는데, 이를 통해 마운트할 위치에 미들웨어 시스템의 하위 스택이 생성된다.
+특정한 path(선택적 매개변수)로,  앱 수준의 미들웨어나 라우터 수준의 미들웨어를 불러올 수 있다. 일련의 미들웨어 함수들을 함께 불러올 수 있는데, 이를 통해 마운트할 위치에 미들웨어 시스템의 하위 스택이 생성된다.
 
 - 앱 수준의 미들웨어
 
-  `app.use()`와 `app.METHOD()`를 통해 앱수준의 미들웨어를 앱 객체의 인스턴스에 바인딩(특정 객체이 실행되게끔 고정시키는 역할)할 수 있다. (`METHOD`는 미들웨어 함수가 처리할 수 있는 HTTP 요청 메서드의 소문자. i.e. get, post)
+  `app.use()`와 `app.METHOD()`를 통해, 앱수준의 미들웨어를 앱 객체의 인스턴스에 바인딩(특정 객체이 실행되게끔 고정시키는 역할)할 수 있다. (`METHOD`는 미들웨어 함수가 처리할 수 있는 HTTP 요청 메서드의 소문자. i.e. get, post)
 
   ```js
   const express = require('express')
@@ -600,11 +866,12 @@ Express는 각각 최소한의 기능성을 가진 라우팅과 미들웨어로 
       console.log('Request Type:', req.method)
       next()
   })
-  // /user/:id 경로에 대한 get 요청을 처리하는 라우터와 미들웨어 시스템
+  // /user/:id 경로에 대한 get 요청을 처리하는 라우터&미들웨어 시스템
   app.get('/user/:id', function (req, res, next) {
       res.send('USER')
   })
-  // 마운트할 경로에 대한 연속적인 미들웨어를 불러오는 예시. /user/:id 경로에 대한 모든 HTTP 요청에 대해 요청을 프린트하는 미들웨어 하위 스택이다.
+  
+  // 마운트할 경로에 대한 연속적인 미들웨어를 불러오는 예시. /user/:id 경로에 대한 모든 HTTP 요청에 대해 요청을 프린트하는 미들웨어의 하위 스택이다.
   app.use('/user/:id', function (req, res, next) {
       console.log('Request URL:', req.originalUrl)
       next()
@@ -612,7 +879,8 @@ Express는 각각 최소한의 기능성을 가진 라우팅과 미들웨어로 
       console.log('Request Type:', req.method)
       next()
   })
-  // 라우터 미들웨어 스택의 나머지 미들웨어 함수들을 스킵하기 위해서 next('route')를 호출하면 다음 라우터로 control을 넘길 수 있다. next('route')는 오직 app.MEHTOD()나 router.METHOD()함수들을 사용한 미들웨어 함수들에서만 동작한다. 
+  
+  // 라우터 미들웨어 스택의 나머지 미들웨어 함수들을 스킵하기 위해서 next('route')를 호출하면 다음 라우터로 control을 넘길 수 있다. 주의) next('route')는 오직 app.MEHTOD()나 router.METHOD()함수들을 사용한 미들웨어 함수들에서만 동작한다. 
   app.get('/user/:id', function (req, res, next) {
       // 만약 user ID 가 0 이라면 스킵하고 다음 라우트로 넘김
       if (req.params.id === '0') next('route')
@@ -646,152 +914,113 @@ Express는 각각 최소한의 기능성을 가진 라우팅과 미들웨어로 
   
   ```
 
-  위의 코드는 한번에 전부 동작하지 않는다. send() 명령어가 실행되고 나면 응답이 끝나버리기 때문이다. 모든 미들웨어를 실행시키고 싶다면 중간에 send() 를 console.log()로 바꾸는 편이 좋다. 마찬가지로 next() 함수가 있어야 다음 미들웨어가 실행된다. 
-
-  app.METHOD 내에서만 next('route') 가 실행된다는 것 주의
-
-  - 용어 정리
-
-    - route (라우트 또는 라우터)
-
-      `app.METHOD()` 처럼 path와 HTTP 메서드에 대한 요청을 받을 때 실행되는 콜백함수(핸들러 함수, 라우팅 메서드)
-
-    - 미들웨어 함수
-
-      요청과 응답과 next함수에 접근하는 모든 함수. 라우트 내에도 미들웨어 함수가 있다.
-
-    - 미들웨어 스택
-
-      미들웨어들의 실행목록. 한 함수 안에 연속적인 미들웨어 함수들이 실행될 때 미들웨어 하위 스택이라 하거나 특정 라우터 안에서 미들웨어 함수들이 사용될 때 라우터 미들웨어 스택이라는 용어를 사용했다.
-
-      
+  
 
 - 라우터 수준의 미들웨어
 
+  라우터 수준의 미들웨어는 `express.Router()`의 인스턴스에게 바인딩된다는 것 만 제외하면 앱 수준의 미들웨어와 같은 방식으로 작동한다.
+
+  `router.use()`와 `router.Method()` 를 통해 라우터 레벨의 미들웨어를 불러올 수 있다. 다음 예제는 라우터 수준의 미들웨어들을 사용해 위의 앱수준의 미들웨어 예제를 구현한 것이다.
+
+  ```js
+  const express = require('express')
+  const app = express()
+  const router = express.Router()
+  
+  // path 가 없는 미들웨어 함수. 모든 요청마다 실행된다.
+  router.use(function (req, res, next) {
+    console.log('Time:', Date.now())
+    next()
+  })
+  
+  // /user/:id에 대한 모든 종류의 요청에 대해 요청 정보를 보여주는 미들웨어 하위 스택
+  router.use('/user/:id', function (req, res, next) {
+    console.log('Request URL:', req.originalUrl)
+    next()
+  }, function (req, res, next) {
+    console.log('Request Type:', req.method)
+    next()
+  })
+  
+  // /user/:id 에 대한 GET 요청을 처리하는 미들웨어 하위 스택
+  router.get('/user/:id', function (req, res, next) {
+    // 만약 user ID 가 -이면 다음 라우터로 넘긴다.
+    if (req.params.id === '0') next('route')
+    // 그렇지 않으면 하위스택의 다음 미들웨어 함수에게 넘긴다.
+    else next()
+  }, function (req, res, next) {
+    // 보통 유저들에게 보여주는 페이지
+    res.render('regular')
+  })
+  
+  // user ID 가 0일 때 보여주는 페이지
+  router.get('/user/:id', function (req, res, next) {
+    console.log(req.params.id)
+    res.render('special')
+  })
+  
+  // 앱에 라우터를 불러온다.
+  app.use('/', router)
+  
+  ```
+
+  
+
+   해당 라우터의 나머지 미들웨어 함수들을 스킵하기 위해서는 next('router')를 호출해 해당 라우터 인스턴스로부터 컨트롤을 회수해 다음 라우터에게 넘긴다.
+
+  주의 ) `app.use()`내에서는 `next('router')`를 사용할 수 없지만, `router.use()`에서는 `next('router')`를 사용할 수 있다. `app.Router` 인스턴스는 위에서 언급한대로 그 자체로 완전한 미들웨어이자 라우트 시스템이기 때문인 듯.
+
+  ```js
+  // predicate the router with a check and bail out when needed
+  router.use(function (req, res, next) {
+    if (!req.headers['x-auth']) return next('router')
+    next()
+  })
+  
+  router.get('/user/:id', function (req, res) {
+    res.send('hello, user!')
+  })
+  
+  // use the router and 401 anything falling through
+  app.use('/admin', router, function (req, res) {
+    res.sendStatus(401)
+  })
+  ```
+
+  
+
 - 에러 처리 미들웨어
+
+  에러처리 미들웨어는 항상 4개의 매개변수를 받는다. `next` 객체가 필요없을 지라도 반드시 명시해 주어야하는데 그렇지 않으면 에러처리에 실패한다.
+
+  ```js
+  app.use(function (err, req, res, next) {
+      console.error(err.stack)
+      res.status(500).send('Something broke')
+  })
+  ```
+
+  
 
 - 빌트인 미들웨어
 
+  4.xx 버전부터는 다음과 같은 모듈들이 빌트인으로 제공된다.
+
+  `express.static`, `express.json`, `express.urlencoded`
+
 - third-party 미들웨어
 
-### Routing
+  third-party 미들웨어들을 익스프레스 앱에 사용하기 위해서는 npm 모듈을 설치하고 앱이나 라우터 레벨 수준에서 불러와 사용하면 된다.
 
-- Routing
-
-  HTTP 메서드에 따른 Express `app` 객체의 메서드를 사용해 `routing`을 정의하면 된다. 예를 들어서 POST 요청에는 `app.post()`, GET요청에는 `app.get()`을 사용해 요청을 처리하면 된다. `app.all()`을 사용하면 모든 HTTP 메서드를 처리할 수 있고, `app.use()` 는 콜백함수로서 미들웨어들을 사용할 수 있다(라우터는아니다).
-
-  이러한 라우팅 메서드들은 앱이 특정한 endpoint(라우트)와 HTTP메서드에 대한 요청을 받을 때 실행되는 콜백함수(핸들러 함수)이다. 즉, 앱은 특정한 라우트와 메서드에 매치될 요청들을 "`listen`" 하며, 요청이 매치되면 특정한 콜백 함수를 실행하는 것이다.
-
-  사실, 라우팅 메서드들은 하나 이상의 콜백함수를 인자로 가질 수 있다. 다수의 콜백함수로 인해, `next`를 콜백함수의 인자로서 제공하는 것이 중요하고, 그 콜백  함수의 body 내에서 `next()`를 호출해 다음 콜백함수에게 control을 전달하는 것 역시 중요하다.
-
-  다음은 `app.all()` 예시이다.
+  다음은 앱수준에서 `cookie-parser` 미들웨어 함수를 불러오는 예시코드이다.
 
   ```js
-  app.all('/secret', function (req, res, next) {
-      console.log('Accessing the secret section ...')
-      next() // pass control to the next handler
-  })
+  const express = require('express')
+  const app = express()
+  const cookieParser = require('cookie-parser')
+  
+  app.use(cookieParser())
   ```
-
-- Route paths
-
-  `Route paths` 는 요청이 이루어질 수 있는 endpoints를 정의한다. 문자열이거나 문자열 패턴, 또는 정규식이 `Route paths` 가 될 수 있다.
-
-  ?, +, *, () 와 같은 문자들은 정규 표현식의 일부이다.  하이픈 - 이나 온점 . 은 문자열 기반의 paths 로 해석된다. 만약 달러 기호 $ 는 ([]) 로 감싸일 때 문자열 path 로 사용할 수 있다.
-
-  다음은 문자열로 이루어진 `route paths`의 예시이다. 
-
-  ```js
-  // /about 에 대한 요청
-  app.get('/about', function (req, res) {
-    res.send('about')
-  })
-  // /random.text 에 대한 요청
-  app.get('/random.text', function (req, res) {
-    res.send('random.text')
-  })
-  // /acd 또는 /abcd 에 대한 요청, ?가 붙은 문자가 포함되거나 포함되지 않는 경우
-  app.get('/ab?cd', function (req, res) {
-    res.send('ab?cd')
-  })
-  // /abcd, /abbcd, /abbbcd 등에 대한 요청, +가 붙은 문자가 n개 만큼 포함되는 경우
-  app.get('/ab+cd', function (req, res) {
-    res.send('ab+cd')
-  })
-  // /abcd, /abxcd, /abRANDOMcd, /ab123cd 등에 대한 요청, ab와 cd 사이에 어떤 문자열이든 올 수 있다.
-  app.get('/ab*cd', function (req, res) {
-    res.send('ab*cd')
-  })
-  ```
-
-- Route parameters
-
-  라우트 매개변수는 URL의 일부분으로 해당하는 위치에 입력될 값들을 나타내기위해 사용된다. 매개변수의 값들은 `req.params` 객체 내부에서 할당하는데, `{매개변수 이름: 매개변수 값}` 의 형태이다.
-
-  매개변수의 이름은 문자열이어야하며 -와 .이 포함될 수 있다.
-
-  ```js
-  // /users/34/books/8989에 대한 요청
-  // req.params: { "userId": "34", "bookId": "8989" }
-  app.get('/users/:userId/books/:bookId', function (req, res) {
-    res.send(req.params)
-  })
-  ```
-
-- Route handlers
-
-  요청을 처리하기 위해 미들웨어같이 동작하는 다수의 콜백함수들을 제공할 수 있다. 이러한 콜백함수들은 남아있는 콜백들을 피해 처리하기 위해 `next('route')`를 호출할 수 있다. 
-
-  You can use this mechanism to impose pre-conditions on a route, then pass control to subsequent routes if there’s no reason to proceed with the current route.
-
-  라우트 핸들러들은 함수의 형태일 수도, 함수들의 배열일 수도, 함수와 배열의 조합일 수도 있다. 다음은 예시이다. 
-
-  ```js
-  // 다수의 콜백함수를 사용하는 경우
-  app.get('/example/b', function (req, res, next) {
-    console.log('the response will be sent by the next function ...')
-    next()
-  }, function (req, res) {
-    res.send('Hello from B!')
-  })
-  
-  // 콜백함수들의 배열을 사용하는 경우
-  const cb0 = function (req, res, next) {
-    console.log('CB0')
-    next()
-  }
-  
-  const cb1 = function (req, res, next) {
-    console.log('CB1')
-    next()
-  }
-  
-  const cb2 = function (req, res) {
-    res.send('Hello from C!')
-  }
-  
-  app.get('/example/c', [cb0, cb1, cb2])
-  
-  // 콜백함수들의 배열과 콜백함수를 함께 사용하는 경우
-  const cb0 = function (req, res, next) {
-    console.log('CB0')
-    next()
-  }
-  
-  const cb1 = function (req, res, next) {
-    console.log('CB1')
-    next()
-  }
-  
-  app.get('/example/d', [cb0, cb1], function (req, res, next) {
-    console.log('the response will be sent by the next function ...')
-    next()
-  }, function (req, res) {
-    res.send('Hello from D!')
-  })
-  ```
-
-  
 
   
 
@@ -809,13 +1038,11 @@ Express는 각각 최소한의 기능성을 가진 라우팅과 미들웨어로 
 
     다른 DB 는 설치한 적이 없어 기본인 3306번 포트로 설정해두었다.
 
-    <img src="C:\Users\lucid\ming\express\images\image-20200823151220748.png" alt="image-20200823151220748" style="zoom:67%;" />
+    <img src="\images\image-20200823151220748.png" alt="image-20200823151220748" style="zoom:67%;" />
 
   - Accounts and Roles 설정
 
     루트 아이디와 유저를 설정해준다.
-
-    <img src="C:\Users\lucid\AppData\Roaming\Typora\typora-user-images\image-20200823151513111.png" alt="image-20200823151513111" style="zoom: 67%;" />
 
 - DB 구성
 
@@ -838,6 +1065,7 @@ Express는 각각 최소한의 기능성을 가진 라우팅과 미들웨어로 
     간단하게 user_table과 post_table을 만든다.
 
     ```mysql
+    use mydb;
     create table user_table(
         no int not null primary key,
     	email char(30) not null,
@@ -850,18 +1078,20 @@ Express는 각각 최소한의 기능성을 가진 라우팅과 미들웨어로 
         created_at datetime,
         user_no int not null
     );
-    alter table post_table add foreign key(user) references user_table(no);
+    alter table post_table add foreign key(user_no) references user_table(no);
     desc post_table;
     desc user_table;
     ```
-
-    ![image-20200823161038034](C:\Users\lucid\ming\express\images\image-20200823161038034.png)
+  ```
+    
+    ![image-20200823161038034](\images\image-20200823161038034.png)
+  ```
 
 - 테이블에 데이터 입력하기
 
   ```mysql
-  insert into user_table values ('a@b.com', '1234', 1);
-  insert into user_table values ('b@c.com', '1234', 2);
+  insert into user_table values (1, 'a@b.com', '1234');
+  insert into user_table values (2, 'b@c.com', '1234');
   insert into post_table values (1,'test', 'it is a test post', null, 1);
   insert into post_table values (2,'test2', 'it is the second test post', null, 1);
   insert into post_table values (3,'test3', 'it is the third test post', null, 2);
@@ -877,7 +1107,7 @@ Express는 각각 최소한의 기능성을 가진 라우팅과 미들웨어로 
   	where user_table.no = post_table.user_no;
   ```
 
-  ![image-20200823162302229](C:\Users\lucid\ming\express\images\image-20200823162302229.png)
+  ![image-20200823162302229](images\image-20200823162302229.png)
 
 - Express app에 mysql 모듈 설치
 
@@ -886,6 +1116,8 @@ Express는 각각 최소한의 기능성을 가진 라우팅과 미들웨어로 
   ```
 
   공식 문서에서는 이후 단계들을 자세히 다루고 있지 않기 때문에 [mysql 모듈의 README](https://github.com/mysqljs/mysql)를 참고해 작성했다.
+
+  
 
 - connections 연결
 
@@ -907,23 +1139,21 @@ Express는 각각 최소한의 기능성을 가진 라우팅과 미들웨어로 
   });
   ```
 
-  
+  https://stackoverflow.com/questions/7042340/error-cant-set-headers-after-they-are-sent-to-the-client
+
+  https://velog.io/@kim-macbook/Cannot-set-headers-after-they-are-sent-to-the-client
+
+  https://stackoverflow.com/questions/50093144/mysql-8-0-client-does-not-support-authentication-protocol-requested-by-server
+
+  send 내부에서 end호출. send다음에는 end필요가 없다.json도 마찬가지. https://github.com/expressjs/express/blob/master/lib/response.js#L154
 
 - connections 종료
-
-- pooling connections
-
-- pool events
-
-- closing all the connections in a pool
 
 - server와의 연결 끊기
 
 - queries 실행하기
 
-- queries 병렬 실행하기
-
-- streaming query rows
+   https://www.codementor.io/@julieisip/learn-rest-api-using-express-js-and-mysql-db-ldflyx8g2 
 
 - multiple statement queries
 
