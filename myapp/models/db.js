@@ -1,26 +1,26 @@
 const mysql = require('mysql');
 
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '1234',
-    database: 'mydb'
-});
+// const connection = mysql.createConnection({
+//     host: 'localhost',
+//     user: 'root',
+//     password: '1234',
+//     database: 'mydb'
+// });
 
-// try {
-//     connection.connect()
+// connection.connect(function (err) {
+//     if (err) {
+//         console.error('error connecting: ' + err.stack);
+//         return;
+//     }
 //     console.log('connected as id ' + connection.threadId);
-// } catch (err) {
-//     console.error('error connecting: ' + err.stack);
-//     return;
-// }
+// });
 
-connection.connect(function (err) {
-    if (err) {
-        console.error('error connecting: ' + err.stack);
-        return;
-    }
-    console.log('connected as id ' + connection.threadId);
-});
+const pool = mysql.createPool({
+    connectionLimi : 10,
+    host : 'localhost',
+    user : 'root',
+    password : '1234',
+    database: 'mydb'
+})
 
-module.exports = connection;
+module.exports = pool;

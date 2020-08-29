@@ -1119,44 +1119,301 @@ Express는 각각 최소한의 기능성을 가진 라우팅과 미들웨어로 
 
   
 
-- connections 연결
+- db 연결
 
   ```js
   const mysql      = require('mysql');
+  // connection 만들기. mysql 서버 정보를 입력
   const connection = mysql.createConnection({
     host     : 'localhost',
     user     : 'myuser',
-    password : 1234
+    password : 1234,
+    database: 'mydb'
   });
   
+  // connection 에 연결하기
   connection.connect(function(err) {
     if (err) {
       console.error('error connecting: ' + err.stack);
       return;
     }
-  
     console.log('connected as id ' + connection.threadId);
   });
   ```
+
+- query 실행과 종료
+
+  ```js
+  // 위 코드와 이어서
+  connection.query('select * from user_table', function (err, results) {
+      if (err) throw err
+      console.log('the solution is: ', results)
+  })
+  ```
+
+  
+
+## CRUD 연습하기
+
+이번 챕터는 [여기](https://www.codementor.io/@julieisip/learn-rest-api-using-express-js-and-mysql-db-ldflyx8g2)를 주로 참고하였다.
+
+### controllers
+
+path와 http Method 에 대한 요청을 처리한다(라우팅 역할).
+
+아래는 /users/ 에 대한 요청을 처리하는 로직이다.
+
+```js
+// app.js 에서 controllers 모듈을 가져오는 코드
+const express = require('express');
+const controllers = require('./controllers');
+app.use(controllers)
+// -------------------------------------------
+
+// controllers/index.js 전체
+const express = require('express');
+const router = express.Router();
+
+// /users/ 로 들어오는 요청을 처리할 모듈을 불러오기
+const usersRouter = require('./users');
+router.use('/users', usersRouter);
+
+router.get('/', function(req, res, next) {
+  res.render('index', { title: 'Express' })
+  res.end()
+});
+
+module.exports = router;
+// ----------------------------------------------
+
+// controllers/users.js 전체
+const express = require('express');
+const router = express.Router();
+// user_table에 대한 query문을 실행해 json으로 결과 값을 반환하는 클래스 User 불러오기
+const User = require('../models/user')
+const { validateForm } = require('../utils/index')
+
+// utils/index의 validationForm 모듈
+// module.exports.validateForm = function (form) {
+//  for (const key in form) {
+//    if (!form[key]) throw Error('Please provide correct Info');
+//  }
+// }
+
+router.get('/', function(req, res) {
+  return res.status(200).send('GET requests for /users/')
+});
+
+// 모든 유저 정보를 가져오는 요청
+router.get('/all', async function(req, res) {
+  try {
+    const users = await User.getAllUser()
+    return res.status(200).json(users)
+  } catch (err) {
+    console.log('error before sending form', err)
+    return res.status(400).send(err)
+  }
+})
+
+// 특정 유저의 정보를 가져오는 요청
+router.get('/:userId', async function(req, res) {
+  try {
+    const user = await User.getUserById(req.params.userId)
+    return res.status(200).json(user)
+  } catch (err) {
+    console.log('error before sending form', err)
+    return res.status(400).send(err)
+  }
+})
+
+// 새로운 유저를 생성하는 요청
+router.post('/', async function(req, res) {
+  const new_user = new User(req.body)
+
+  try {
+    validateForm(new_user)
+  } catch (err) {
+    console.log('error in validating form')
+    return res.status(400).send(err.message)
+  }
+
+  try {
+    await User.createUser(new_user)
+    return res.status(200).json(new_user)
+  } catch (err) {
+    console.log('error in saving form', err)
+    return res.status(400).send(err)
+  }
+})
+
+// 유저 정보를 수정하는 요청
+router.put('/:userId', async function(req, res) {
+  try {
+    const userId = parseInt(req.params.userId)
+    const new_user = new User(req.body)
+    await User.updateById(userId, new_user)
+    return res.status(200).json(new_user)
+  } catch (err) {
+    console.log('error in saving form', err)
+    return res.status(400).send(err)
+  }
+})
+
+// 유저 정보를 삭제하는 요청
+router.delete('/:userId', async function(req, res) {
+  try {
+    const userId = parseInt(req.params.userId)
+    await User.removeById(userId)
+    return res.status(200).send(`${userId} is deleted`)
+  } catch (err) {
+    console.log('error in saving form', err)
+    return res.status(400).send(err)
+  }
+})
+
+module.exports = router;
+```
+
+- send, json 등의 메서드 내에서 end 를 부르기 때문에 요청-응답 사이클을 끝내기 위해 따로 end를 호출할 필요가 없다.
+- 위의 user 코드는 아주 간단한 버전으로 실제로 auth를 구현하기 위해서는 더 복잡하다. CRUD 연습 이후 auth를 구현해볼 것이다.
+
+### models
+
+db와 연결해 요청에 따라 query 문을 실행하고 그 결과를 반환하는 로직을 담당한다.
+
+```js
+// models/db.js
+// 일정한 개수의 connection을 미리 만들어 두고 필요할 때마다 사용할 수 있는 pool을 생성해 모듈화한다.
+const mysql = require('mysql');
+const pool = mysql.createPool({
+    connectionLimi : 10,
+    host : 'localhost',
+    user : 'root',
+    password : '1234',
+    database: 'mydb'
+})
+
+module.exports = pool;
+// -----------------------------------------------------------------------------------------
+
+// models/user.js
+// user 테이블 구조로 column을 클래스화 하고 column을 CRUD 하는 메서드를 작성한다.
+// db와의 connection을 연결해둔 모듈을 가져온다.
+const db = require('./db')
+
+const User = function (user) {
+  this.no = user.no;
+  this.email = user.email;
+  this.password = user.password;
+}
+
+// 특정한 user의 정보를 읽어오는 함수
+// db.query가 수행되고 나서 콜백함수에 결과 값이 담기는 데 try catch 문으로 변경하면 query문이 실행이 안된상태로 반환된다... 아래가 최선..
+User.getUserById = function (userId) {
+  return new Promise((resolve, reject) => {
+    db.query("select * from user_table where no = ?", userId, (error, results, fields) => {
+      if (error) {
+        reject(error)
+      } else {
+        resolve({results, fields})
+      }
+    })
+  })
+}
+
+// 시도했으나 돌아가지 않는 코드. 누군가 정답을 알려줘..
+// User.getUserById = async function (userId) {
+//  return await new Promise(async (resolve, reject) => {
+//    try {
+//      const results = await db.query("select * from user_table where no = ?", userId) 
+//      resolve(results)
+//    } catch (error) {
+//      reject(error)
+//    }
+//  })
+//}
+  
+// query문에 인자가 포함되는 경우는 아래처럼 ? 처리하고 다음 매개변수로 넘긴다.
+  return new Promise((resolve, reject) => {
+    db.query("select * from user_table where no = ?", userId, (error, results, fields) => {
+      if (error) {
+        reject(error)
+      } else {
+        resolve({results, fields})
+      }
+    })
+  })
+}
+
+User.getAllUser = function () {
+  return new Promise((resolve, reject) => {
+    db.query("select * from user_table", (error, results, fields) => {
+      if (error) {
+        reject(error)
+      } else {
+        resolve({results, fields})
+      }
+    })
+  })
+}
+
+User.createUser = function (newUser) {
+  try {
+    db.query("insert into user_table set ?", newUser)
+  } catch (err) {
+    console.log('error happens in creating query', err)
+    throw err
+  }
+}
+
+// query문에 넘길 인자가 여러개일 경우에는 array로 넘긴다.
+User.updateById = function (userId, user) {
+  try {
+    db.query("update user_table set ? where no = ?", [user, userId])
+  } catch (err) {
+    console.log('error happens in updating user by id', err)
+    throw err
+  }
+} 
+
+User.removeById = function (userId) {
+  try {
+    db.query("delete from user_table where no = ?", userId)
+  } catch (err) {
+    console.log('error happens in removing user by id', err)
+    throw err
+  }
+}
+
+
+module.exports = User;
+```
+
+
+
+### 결과  중 일부
+
+![image-20200829180411691](images/image-20200829180411691.png)
+
+![image-20200829180341267](images/image-20200829180341267.png)
+
+### 고난과 역경
+
+- 요청-응답 사이클이 끝내지 않았을 때 나타나는 에러
+
+  if 와 else로 블록을 확실히 나눠주지 않으면 if문의 res.status().send()를 수행하고 난 뒤에 다른 res.status().send() 등을 수행해버려 이미 보낸 요청의 헤더를 설정할 수 없다는 에러가 나오게된다.
+
+  if문 블록처리, 함수에선 return 처리 등 확실하게 코드를 짜야한다.
 
   https://stackoverflow.com/questions/7042340/error-cant-set-headers-after-they-are-sent-to-the-client
 
   https://velog.io/@kim-macbook/Cannot-set-headers-after-they-are-sent-to-the-client
 
-  https://stackoverflow.com/questions/50093144/mysql-8-0-client-does-not-support-authentication-protocol-requested-by-server
 
-  send 내부에서 end호출. send다음에는 end필요가 없다.json도 마찬가지. https://github.com/expressjs/express/blob/master/lib/response.js#L154
 
-- connections 종료
+## Authentication
 
-- server와의 연결 끊기
 
-- queries 실행하기
 
-   https://www.codementor.io/@julieisip/learn-rest-api-using-express-js-and-mysql-db-ldflyx8g2 
+## Sequelize
 
-- multiple statement queries
-
-- joins with overlapping column names
-
-- transactions
